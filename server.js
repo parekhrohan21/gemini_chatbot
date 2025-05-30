@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 
-const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY';  // Replace with your real API key
+const GEMINI_API_KEY = 'AIzaSyBa9kXU0K6Qg36sNnoWgjEPbhpaH7if4hk';  // Replace with your real API key
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
 app.post('/chat', async (req, res) => {
