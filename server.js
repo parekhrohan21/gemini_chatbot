@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 
 const GEMINI_API_KEY = 'AIzaSyBa9kXU0K6Qg36sNnoWgjEPbhpaH7if4hk';  // Replace with your real API key
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 // Note: Ensure you have the correct API key and model name
 // for your use case.
 app.post('/chat', async (req, res) => {
