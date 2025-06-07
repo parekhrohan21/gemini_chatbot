@@ -28,3 +28,12 @@ app.use(express.static('public'));  // Serve frontend files
 app.listen(3000, () => {
   console.log('Server running at http://localhost:3000');
 });
+
+// Note: Make sure to install the required packages using:
+// npm install express axios body-parser
+// Also, ensure you have Node.js installed on your machine.
+// To run the server, use the command: node server.js
+// You can then access the chatbot at http://localhost:3000
+// Make sure to handle CORS if you are accessing this from a different origin
+// or use a proxy setup in your frontend development server.
+// This code sets up a simple Express server that listens for POST requests
