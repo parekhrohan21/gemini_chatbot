@@ -31,34 +31,6 @@
 </body>
 <!-- Add documentation on this file and make it look nice -->
 </html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Gemini Chatbot</title>
-</head>
-<body>
-  <h1>Gemini Chatbot</h1>
-  <input type="text" id="userInput" placeholder="Type your message">
-  <button onclick="sendMessage()">Send</button>
-  <div id="chatbox"></div>
 
-  <script>
-    async function sendMessage() {
-      const userInput = document.getElementById('userInput').value;
-      const response = await fetch('/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userInput })
-      });
-      const data = await response.json();
-      document.getElementById('chatbox').innerHTML += `<p><b>You:</b> ${userInput}</p>`;
-      document.getElementById('chatbox').innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
-    }
-  </script>
-</body>
-</html>
-<!-- This is the main HTML file for the Gemini Chatbot application.
-     It provides a simple user interface for interacting with the chatbot.
-     Users can type messages and receive responses from the bot. 
--->
 
 
