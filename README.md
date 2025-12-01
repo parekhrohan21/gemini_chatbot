@@ -1,5 +1,22 @@
-# gemini_chatbot
+# Speaking Gemini Chatbot Wrapper
 
-in this one I have created a gemini based chatbot website 
+A Python-based voice-enabled chatbot using Google's Gemini API with text-to-speech capabilities.
 
-i need to update thework. as its non functioning now
+## Features
+
+- 💬 Interactive chat with Gemini AI
+- 🔊 Text-to-speech voice responses
+- 📝 Conversation history tracking
+- ⚙️ Configurable voice settings
+- 🎯 Simple and extensible architecture
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
+
+## Installation
+
+1. Clone or download this project
+
+2. Install required dependencies:
