@@ -1,39 +1,81 @@
 const express = require('express');
-const axios = require('axios');
 const bodyParser = require('body-parser');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+require('dotenv').config(); // Good practice to have, though we might rely on system envs
 
 const app = express();
 app.use(bodyParser.json());
+app.use(express.static('public'));
 
-const GEMINI_API_KEY = 'AIzaSyBa9kXU0K6Qg36sNnoWgjEPbhpaH7if4hk';  // Replace with your real API key
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-// Note: Ensure you have the correct API key and model name
-// for your use case.
+// Initialize Gemini API
+const apiKey = 'AIzaSyBa9kXU0K6Qg36sNnoWgjEPbhpaH7if4hk'; // In production use process.env.GEMINI_API_KEY
+const genAI = new GoogleGenerativeAI(apiKey);
+
+// We use the flash model which supports audio generation
+const model = genAI.getGenerativeModel({ 
+    model: "gemini-2.0-flash-exp", 
+});
+
 app.post('/chat', async (req, res) => {
-  const userMessage = req.body.message;
-  try {
-    const response = await axios.post(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
-      contents: [{ parts: [{ text: userMessage }] }]
-    });
-    const botReply = response.data.candidates[0].content.parts[0].text;
-    res.json({ reply: botReply });
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Error calling Gemini API');
-  }
+    const userMessage = req.body.message;
+    
+    try {
+        // Generate content with audio modality
+        const result = await model.generateContent({
+             contents: [
+                 {
+                     role: 'user',
+                     parts: [
+                         { text: "You are a helpful and charismatic AI agent. Reply to the following user message. Keep your answer concise but friendly." },
+                         { text: userMessage }
+                     ]
+                 }
+             ],
+             generationConfig: {
+                 responseModalities: ["TEXT", "AUDIO"],
+                 speechConfig: {
+                    voiceConfig: {
+                      prebuiltVoiceConfig: {
+                        voiceName: "Puck"
+                      }
+                    }
+                 }
+             }
+        });
+
+        const response = result.response;
+        const candidates = response.candidates;
+        
+        if (!candidates || candidates.length === 0) {
+             throw new Error("No candidates returned");
+        }
+
+        const parts = candidates[0].content.parts;
+        let textReply = "";
+        let audioData = null;
+
+        // Extract Text and Audio
+        for (const part of parts) {
+            if (part.text) {
+                textReply += part.text;
+            }
+            if (part.inlineData && part.inlineData.mimeType.startsWith('audio')) {
+                audioData = part.inlineData.data;
+            }
+        }
+
+        res.json({ 
+            reply: textReply || "I'm listening...", 
+            audio: audioData 
+        });
+
+    } catch (error) {
+        console.error('Error calling Gemini API:', error);
+        res.status(500).json({ error: 'Error processing your request' });
+    }
 });
 
-app.use(express.static('public'));  // Serve frontend files
-
-app.listen(3000, () => {
-  console.log('Server running at http://localhost:3000');
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
 });
-
-// Note: Make sure to install the required packages using:
-// npm install express axios body-parser
-// Also, ensure you have Node.js installed on your machine.
-// To run the server, use the command: node server.js
-// You can then access the chatbot at http://localhost:3000
-// Make sure to handle CORS if you are accessing this from a different origin
-// or use a proxy setup in your frontend development server.
-// This code sets up a simple Express server that listens for POST requests

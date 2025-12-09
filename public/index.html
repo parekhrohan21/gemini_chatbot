@@ -1,37 +1,42 @@
 <!DOCTYPE html>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
-    <title>Gemini Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gemini Agent</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
-
-
-<!-- the file needs update in terms of front end looks -->
 <body>
-    <h1>Gemini Chatbot</h1>
-    <input type="text" id="userInput" placeholder="Type your message">
-    <button onclick="sendMessage()">Send</button>
-    <div id="chatbox"></div>
+    <div class="container">
+        <header>
+            <h1>Gemini Agent</h1>
+        </header>
 
-    <script>
-        async function sendMessage() {
-            const userInput = document.getElementById('userInput').value;
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userInput })
-            });
-            const data = await response.json();
-            document.getElementById('chatbox').innerHTML += `<p><b>You:</b> ${userInput}</p>`;
-            document.getElementById('chatbox').innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
-        }
-    </script>
+        <main>
+            <div id="visualizer-container">
+                <div id="visualizer">
+                    <div class="circle"></div>
+                    <div class="circle"></div>
+                    <div class="circle"></div>
+                </div>
+            </div>
+
+            <div id="controls">
+                <button id="mic-button" aria-label="Start Voice Input">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="output" class="status-text"></div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
 </body>
-<!-- Add documentation on this file and make it look nice -->
-</html><!DOCTYPE html>
-
-
-
+</html>

@@ -7,20 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/parekhrohan21/gemini_chatbot.git"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/parekhrohan21/gemini_chatbot/issues"
-  },
-  "homepage": "https://github.com/parekhrohan21/gemini_chatbot#readme",
   "dependencies": {
     "axios": "^1.9.0",
     "body-parser": "^2.2.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "@google/generative-ai": "^0.21.0",
+    "dotenv": "^16.3.1"
   }
 }
