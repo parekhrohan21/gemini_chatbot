@@ -13,7 +13,7 @@ const genAI = new GoogleGenerativeAI(apiKey);
 
 // We use the flash model which supports audio generation
 const model = genAI.getGenerativeModel({
-    model: "gemini-3.0-pro-exp",
+    model: "gemini-3-pro-preview",
 });
 
 app.post('/chat', async (req, res) => {
