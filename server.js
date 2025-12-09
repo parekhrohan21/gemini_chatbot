@@ -8,46 +8,46 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Initialize Gemini API
-const apiKey = 'AIzaSyBa9kXU0K6Qg36sNnoWgjEPbhpaH7if4hk'; // In production use process.env.GEMINI_API_KEY
+const apiKey = 'AIzaSyD1hsah0M3l7zlytOgf4ApQpBlrc0LfK6k'; // In production use process.env.GEMINI_API_KEY
 const genAI = new GoogleGenerativeAI(apiKey);
 
 // We use the flash model which supports audio generation
-const model = genAI.getGenerativeModel({ 
-    model: "gemini-2.0-flash-exp", 
+const model = genAI.getGenerativeModel({
+    model: "gemini-3.0-pro-exp",
 });
 
 app.post('/chat', async (req, res) => {
     const userMessage = req.body.message;
-    
+
     try {
         // Generate content with audio modality
         const result = await model.generateContent({
-             contents: [
-                 {
-                     role: 'user',
-                     parts: [
-                         { text: "You are a helpful and charismatic AI agent. Reply to the following user message. Keep your answer concise but friendly." },
-                         { text: userMessage }
-                     ]
-                 }
-             ],
-             generationConfig: {
-                 responseModalities: ["TEXT", "AUDIO"],
-                 speechConfig: {
+            contents: [
+                {
+                    role: 'user',
+                    parts: [
+                        { text: "You are a helpful and charismatic AI agent. Reply to the following user message. Keep your answer concise but friendly." },
+                        { text: userMessage }
+                    ]
+                }
+            ],
+            generationConfig: {
+                responseModalities: ["TEXT", "AUDIO"],
+                speechConfig: {
                     voiceConfig: {
-                      prebuiltVoiceConfig: {
-                        voiceName: "Puck"
-                      }
+                        prebuiltVoiceConfig: {
+                            voiceName: "Puck"
+                        }
                     }
-                 }
-             }
+                }
+            }
         });
 
         const response = result.response;
         const candidates = response.candidates;
-        
+
         if (!candidates || candidates.length === 0) {
-             throw new Error("No candidates returned");
+            throw new Error("No candidates returned");
         }
 
         const parts = candidates[0].content.parts;
@@ -64,9 +64,9 @@ app.post('/chat', async (req, res) => {
             }
         }
 
-        res.json({ 
-            reply: textReply || "I'm listening...", 
-            audio: audioData 
+        res.json({
+            reply: textReply || "I'm listening...",
+            audio: audioData
         });
 
     } catch (error) {

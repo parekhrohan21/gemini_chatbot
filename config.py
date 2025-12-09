@@ -1,7 +1,7 @@
 """Configuration settings for the Gemini chatbot"""
 
 # Gemini Model Settings
-MODEL_NAME = "gemini-2.0-flash-exp"
+MODEL_NAME = "gemini-3.0-pro-exp"
 TTS_MODEL_NAME = "gemini-2.0-flash-tts"
 
 # Voice Settings
