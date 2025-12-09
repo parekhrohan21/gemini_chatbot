@@ -1,22 +1,41 @@
-# Speaking Gemini Chatbot Wrapper
+# Voice-Enabled Gemini Agent
 
-A Python-based voice-enabled chatbot using Google's Gemini API with text-to-speech capabilities.
+This project transforms a simple chatbot into a voice-enabled Agent using Gemini 2.0 Flash features.
 
 ## Features
+### 1. Backend (`server.js`)
+- Integrated `@google/generative-ai` SDK.
+- Configured `gemini-2.0-flash-exp` model.
+- Enabled `response_modalities: ["TEXT", "AUDIO"]` to receive native audio from Gemini.
+- Backend now returns both text and a base64 audio string.
 
-- 💬 Interactive chat with Gemini AI
-- 🔊 Text-to-speech voice responses
-- 📝 Conversation history tracking
-- ⚙️ Configurable voice settings
-- 🎯 Simple and extensible architecture
+### 2. Frontend (`public/`)
+- **Agent UI**: Replaced the simple form with a "Visualizer Orb" that pulses when listening and speaking.
+- **Voice Logic**: Implemented `SpeechRecognition` to capture user voice, and `Audio` API to play Gemini's response.
+- **Dark Mode**: Applied a premium dark aesthetics with animations.
 
-## Prerequisites
+## How to Run
+1.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
+2.  **Start the Server**:
+    ```bash
+    npm start
+    ```
+3.  **Open Browser**: Go to `http://localhost:3000`.
+4.  **Permissions**: Allow Microphone access when prompted.
+5.  **Interact**:
+    - Click the **Microphone Icon**.
+    - Speak to the agent (e.g., "Tell me a joke").
+    - **Watch**: The orb will change state (Listening -> Thinking -> Speaking).
+    - **Listen**: You will hear Gemini's voice response.
 
-- Python 3.8 or higher
-- Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
+## Visualization Of States
+- **Idle**: Pulsing Blue Orb.
+- **Listening**: Red Glow, Active Pulse.
+- **Thinking**: Fast White Spin.
+- **Speaking**: Ripple Effect.
 
-## Installation
-
-1. Clone or download this project
-
-2. Install required dependencies:
+> [!NOTE]
+> Ensure you have your `GEMINI_API_KEY` set correctly in the environment or `server.js` (currently hardcoded for demo).
