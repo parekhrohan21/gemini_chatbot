@@ -8,19 +8,23 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Initialize Gemini API
-const apiKey = 'AIzaSyD1hsah0M3l7zlytOgf4ApQpBlrc0LfK6k'; // In production use process.env.GEMINI_API_KEY
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+    console.error("Error: GEMINI_API_KEY is not set in environment variables.");
+    process.exit(1);
+}
 const genAI = new GoogleGenerativeAI(apiKey);
 
 // We use the flash model which supports audio generation
 const model = genAI.getGenerativeModel({
-    model: "gemini-3-pro-preview",
+    model: "gemini-1.5-flash",
 });
 
 app.post('/chat', async (req, res) => {
     const userMessage = req.body.message;
 
     try {
-        // Generate content with audio modality
+        // Generate content (Text only for Flash model compatibility)
         const result = await model.generateContent({
             contents: [
                 {
@@ -31,16 +35,7 @@ app.post('/chat', async (req, res) => {
                     ]
                 }
             ],
-            generationConfig: {
-                responseModalities: ["TEXT", "AUDIO"],
-                speechConfig: {
-                    voiceConfig: {
-                        prebuiltVoiceConfig: {
-                            voiceName: "Puck"
-                        }
-                    }
-                }
-            }
+            // generationConfig removed as audio is not supported on Flash
         });
 
         const response = result.response;

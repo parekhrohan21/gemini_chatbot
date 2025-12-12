@@ -19,7 +19,7 @@ class SpeakingGeminiChatbot:
         genai.configure(api_key=api_key)
         
         # Initialize the Gemini model
-        self.model = genai.GenerativeModel('gemini-3-pro-preview')
+        self.model = genai.GenerativeModel('gemini-1.5-flash')
         
         # Initialize chat session with history
         self.chat = self.model.start_chat(history=[])
