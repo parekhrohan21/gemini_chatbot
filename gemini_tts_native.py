@@ -14,7 +14,6 @@ class GeminiNativeTTS:
             raise ValueError("GEMINI_API_KEY not found")
         
         genai.configure(api_key=api_key)
-        self.client = genai.Client(api_key=api_key)
         
     def save_audio_to_wav(self, pcm_data, filename, sample_rate=24000, channels=1, sample_width=2):
         """Save PCM audio data to WAV file"""
@@ -27,19 +26,20 @@ class GeminiNativeTTS:
     def generate_speech(self, text, output_file="output.wav", voice_name="Puck"):
         """Generate speech using Gemini's native TTS"""
         try:
-            response = self.client.models.generate_content(
-                model="gemini-2.0-flash-tts",
-                contents=f"Say cheerfully: {text}",
-                config=types.GenerateContentConfig(
-                    response_modalities=["AUDIO"],
-                    speech_config=types.SpeechConfig(
-                        voice_config=types.VoiceConfig(
-                            prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                                voice_name=voice_name
-                            )
-                        )
-                    )
-                )
+            model = genai.GenerativeModel("gemini-2.0-flash-exp")
+            
+            response = model.generate_content(
+                f"Say cheerfully: {text}",
+                generation_config={
+                    "response_modalities": ["AUDIO"],
+                    "speech_config": {
+                        "voice_config": {
+                            "prebuilt_voice_config": {
+                                "voice_name": voice_name
+                            }
+                        }
+                    }
+                }
             )
             
             # Extract audio data
