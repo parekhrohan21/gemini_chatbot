@@ -10,7 +10,7 @@ This project transforms a simple chatbot into a voice-enabled Agent using Gemini
 - Backend now returns both text and a base64 audio string.
 
 ### 2. Frontend (`public/`)
-- **Agent UI**: Replaced the simple form with a "Visualizer Orb" that pulses when listening and speaking.
+- **Agent UI**: Replaced the simple form with a "Visualiser Orb" that pulses when listening and speaking.
 - **Voice Logic**: Implemented `SpeechRecognition` to capture user voice, and `Audio` API to play Gemini's response.
 - **Dark Mode**: Applied a premium dark aesthetics with animations.
 
