@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(apiKey);
 
 async function listModels() {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
         // Note: getGenerativeModel doesn't validate existence, but we can't "list" models easily with the high-level SDK unless we use the model manager if available in this SDK version.
         // The node SDK usually doesn't have a listModels method exposed on the main class easily in all versions.
         // But let's try a direct fetch if needed, or just try a basic generation on a few known candidate names.
@@ -17,7 +17,8 @@ async function listModels() {
             "gemini-1.5-flash-002",
             "gemini-1.5-flash-latest",
             "gemini-1.5-pro",
-            "gemini-pro"
+            "gemini-pro",
+            "gemini-3-flash-preview"
         ];
 
         for (const name of candidates) {
