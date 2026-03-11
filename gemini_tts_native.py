@@ -26,7 +26,7 @@ class GeminiNativeTTS:
     def generate_speech(self, text, output_file="output.wav", voice_name="Puck"):
         """Generate speech using Gemini's native TTS"""
         try:
-            model = genai.GenerativeModel("gemini-2.0-flash-exp")
+            model = genai.GenerativeModel("gemini-2.5-flash-preview-tts")
             
             response = model.generate_content(
                 f"Say cheerfully: {text}",
