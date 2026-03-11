@@ -1,8 +1,8 @@
 """Configuration settings for the Gemini chatbot"""
 
 # Gemini Model Settings
-MODEL_NAME = "gemini-3-pro-preview"
-TTS_MODEL_NAME = "gemini-2.0-flash-tts"
+MODEL_NAME = "gemini-2.5-flash"
+TTS_MODEL_NAME = "gemini-2.5-flash-preview-tts"
 
 # Voice Settings
 VOICE_RATE = 175  # Speech rate (words per minute)
