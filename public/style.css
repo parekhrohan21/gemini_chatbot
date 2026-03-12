@@ -36,7 +36,7 @@ header h1 {
     text-transform: uppercase;
 }
 
-/* Visualizer (The Orb) */
+/* Visualizer (The Orb Image) */
 #visualizer-container {
     height: 300px;
     display: flex;
@@ -48,61 +48,62 @@ header h1 {
 
 #visualizer {
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.circle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+#orb-img {
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
-    border: 2px solid var(--accent-color);
-    box-shadow: 0 0 20px var(--accent-glow);
-    opacity: 0.8;
-    transition: all 0.3s ease;
+    object-fit: cover;
+    animation: float 5s ease-in-out infinite;
+    filter: drop-shadow(0 0 18px rgba(140, 80, 255, 0.6));
+    transition: filter 0.4s ease, transform 0.3s ease;
 }
 
-.circle:nth-child(1) { width: 100%; height: 100%; animation: pulse 4s infinite ease-in-out; }
-.circle:nth-child(2) { width: 70%; height: 70%; animation: pulse 4s infinite ease-in-out 1s; }
-.circle:nth-child(3) { width: 40%; height: 40%; background: var(--secondary-color); box-shadow: 0 0 30px var(--secondary-color); }
-
-/* States */
-/* Active / Listening */
-#visualizer.active .circle {
-    border-color: var(--mic-active);
-    box-shadow: 0 0 30px rgba(255, 75, 75, 0.4);
-}
-#visualizer.active .circle:nth-child(3) {
-    background: var(--mic-active);
+/* Listening: red pulsing glow */
+#visualizer.active #orb-img {
+    animation: float 5s ease-in-out infinite, pulse-red 1.2s ease-in-out infinite;
+    filter: drop-shadow(0 0 22px rgba(255, 75, 75, 0.8));
 }
 
-/* Thinking (Fast Spin/Pulse) */
-#visualizer.thinking .circle {
-    border-color: #ffffff;
-    animation: spin 2s linear infinite;
+/* Thinking: fast spin */
+#visualizer.thinking #orb-img {
+    animation: spin-orb 1.8s linear infinite;
+    filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.7)) brightness(1.2);
 }
 
-/* Speaking (Wave effect - Simulated) */
-#visualizer.speaking .circle {
-    animation: ripple 1s infinite ease-out;
+/* Speaking: ripple glow */
+#visualizer.speaking #orb-img {
+    animation: float 5s ease-in-out infinite, ripple-glow 1s ease-out infinite;
+    filter: drop-shadow(0 0 28px rgba(0, 242, 254, 0.9));
 }
 
-@keyframes pulse {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
-    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.2; }
-    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+@keyframes float {
+    0%   { transform: translateY(0px); }
+    50%  { transform: translateY(-12px); }
+    100% { transform: translateY(0px); }
 }
 
-@keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+@keyframes pulse-red {
+    0%   { filter: drop-shadow(0 0 16px rgba(255, 75, 75, 0.5)); }
+    50%  { filter: drop-shadow(0 0 32px rgba(255, 75, 75, 1)); }
+    100% { filter: drop-shadow(0 0 16px rgba(255, 75, 75, 0.5)); }
 }
 
-@keyframes ripple {
-    0% { width: 40%; height: 40%; opacity: 0.8; }
-    100% { width: 150%; height: 150%; opacity: 0; }
+@keyframes spin-orb {
+    0%   { transform: rotate(0deg) scale(1.05); }
+    100% { transform: rotate(360deg) scale(1.05); }
+}
+
+@keyframes ripple-glow {
+    0%   { filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.5)); transform: translateY(-6px) scale(1); }
+    50%  { filter: drop-shadow(0 0 36px rgba(0, 242, 254, 1)); transform: translateY(-6px) scale(1.06); }
+    100% { filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.5)); transform: translateY(-6px) scale(1); }
 }
 
 /* Controls */
