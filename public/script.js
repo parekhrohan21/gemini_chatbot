@@ -1,11 +1,17 @@
 const outputDiv = document.getElementById('output');
 const visualizer = document.getElementById('visualizer');
 const micButton = document.getElementById('mic-button');
+const muteButton = document.getElementById('mute-button');
 
 let recognition;
 let isListening = false;
-let audioContext, analyser, dataArray, source;
+let isMuted = false;
+let audioContext, analyser, dataArray;
+let currentUtterance = null;
 
+// ──────────────────────────────────────────
+// Visualizer
+// ──────────────────────────────────────────
 function initVisualizer() {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioContext.createAnalyser();
@@ -16,7 +22,6 @@ function initVisualizer() {
 
 function updateVisualizer(isActive) {
     if (!visualizer) return;
-
     if (isActive) {
         visualizer.classList.add('active');
         visualizer.classList.remove('speaking');
@@ -29,16 +34,83 @@ function updateVisualizer(isActive) {
 function setSpeakingState(speaking) {
     if (speaking) {
         visualizer.classList.add('speaking');
+        visualizer.classList.remove('active');
     } else {
         visualizer.classList.remove('speaking');
     }
 }
 
+// ──────────────────────────────────────────
+// Text-to-Speech (Web Speech API)
+// ──────────────────────────────────────────
+function speakText(text) {
+    if (!window.speechSynthesis) {
+        console.warn('SpeechSynthesis not supported in this browser.');
+        return;
+    }
 
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+
+    if (isMuted) return;
+
+    // Strip markdown-style symbols for cleaner speech
+    const cleanText = text
+        .replace(/\*\*(.*?)\*\*/g, '$1')   // bold
+        .replace(/\*(.*?)\*/g, '$1')        // italic
+        .replace(/#+\s/g, '')               // headings
+        .replace(/`([^`]+)`/g, '$1')        // inline code
+        .replace(/\n/g, ' ')               // newlines
+        .trim();
+
+    currentUtterance = new SpeechSynthesisUtterance(cleanText);
+    currentUtterance.lang = 'en-US';
+    currentUtterance.rate = 1.0;
+    currentUtterance.pitch = 1.05;
+    currentUtterance.volume = 1.0;
+
+    // Try to pick a natural-sounding voice
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v =>
+        (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Alex')) &&
+        v.lang.startsWith('en')
+    ) || voices.find(v => v.lang.startsWith('en'));
+    if (preferred) currentUtterance.voice = preferred;
+
+    currentUtterance.onstart = () => setSpeakingState(true);
+    currentUtterance.onend = () => setSpeakingState(false);
+    currentUtterance.onerror = () => setSpeakingState(false);
+
+    window.speechSynthesis.speak(currentUtterance);
+}
+
+// Load voices (Chrome loads them async)
+if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = () => { /* voices loaded */ };
+}
+
+// ──────────────────────────────────────────
+// Mute Toggle
+// ──────────────────────────────────────────
+if (muteButton) {
+    muteButton.addEventListener('click', () => {
+        isMuted = !isMuted;
+        muteButton.textContent = isMuted ? '🔇' : '🔊';
+        muteButton.title = isMuted ? 'Unmute voice' : 'Mute voice';
+        if (isMuted && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+            setSpeakingState(false);
+        }
+    });
+}
+
+// ──────────────────────────────────────────
+// Speech Recognition
+// ──────────────────────────────────────────
 function setupRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-        outputDiv.innerHTML = "Speech Recognition not supported in this browser.";
+        outputDiv.innerHTML = "⚠️ Speech Recognition not supported. Try Chrome or Edge.";
         return;
     }
 
@@ -52,20 +124,21 @@ function setupRecognition() {
         micButton.classList.add('listening');
         updateVisualizer(true);
         outputDiv.textContent = "Listening...";
+        // Stop any ongoing TTS when user starts speaking
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        setSpeakingState(false);
     };
 
     recognition.onend = () => {
         isListening = false;
         micButton.classList.remove('listening');
-        // Don't turn off visualizer immediately if we are going to process
     };
 
     recognition.onresult = async (event) => {
         const transcript = event.results[0][0].transcript;
         outputDiv.textContent = `You: ${transcript}`;
-        updateVisualizer(false); // Stop listening anim
-        visualizer.classList.add('thinking'); // Start thinking anim
-
+        updateVisualizer(false);
+        visualizer.classList.add('thinking');
         await sendToGemini(transcript);
     };
 
@@ -76,6 +149,9 @@ function setupRecognition() {
     };
 }
 
+// ──────────────────────────────────────────
+// Gemini API Call
+// ──────────────────────────────────────────
 async function sendToGemini(text) {
     try {
         const response = await fetch('/chat', {
@@ -87,12 +163,13 @@ async function sendToGemini(text) {
         const data = await response.json();
         visualizer.classList.remove('thinking');
 
-        // Handle Text
         if (data.reply) {
             outputDiv.innerHTML = `<div><b>Gemini:</b> ${data.reply}</div>`;
+            // Speak the reply using Web Speech API
+            speakText(data.reply);
         }
 
-        // Handle Audio
+        // Fallback: play server-side audio if it ever comes back
         if (data.audio) {
             playAudio(data.audio);
         }
@@ -107,19 +184,16 @@ async function sendToGemini(text) {
 function playAudio(base64Audio) {
     const audioStr = "data:audio/wav;base64," + base64Audio;
     const audio = new Audio(audioStr);
-
     setSpeakingState(true);
-
-    audio.onended = () => {
-        setSpeakingState(false);
-    };
-
+    audio.onended = () => setSpeakingState(false);
     audio.play().catch(e => console.error("Playback error:", e));
 }
 
+// ──────────────────────────────────────────
+// Mic Button
+// ──────────────────────────────────────────
 micButton.addEventListener('click', () => {
     if (!recognition) setupRecognition();
-
     if (isListening) {
         recognition.stop();
     } else {
@@ -127,6 +201,6 @@ micButton.addEventListener('click', () => {
     }
 });
 
-// Initial greeting
+// Initial setup
 outputDiv.textContent = "Click the microphone to start chatting.";
 initVisualizer();
