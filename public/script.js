@@ -64,18 +64,22 @@ function speakText(text) {
         .trim();
 
     currentUtterance = new SpeechSynthesisUtterance(cleanText);
-    currentUtterance.lang = 'en-US';
-    currentUtterance.rate = 1.0;
-    currentUtterance.pitch = 1.05;
+    currentUtterance.lang = 'en-GB';
     currentUtterance.volume = 1.0;
 
-    // Try to pick a natural-sounding voice
+    // Prefer British English female voices
     const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v =>
-        (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Alex')) &&
-        v.lang.startsWith('en')
-    ) || voices.find(v => v.lang.startsWith('en'));
+    const preferred =
+        voices.find(v => v.name === 'Google UK English Female') ||
+        voices.find(v => v.name.toLowerCase().includes('female') && v.lang === 'en-GB') ||
+        voices.find(v => v.lang === 'en-GB') ||
+        voices.find(v => v.lang.startsWith('en-GB')) ||
+        voices.find(v => v.lang.startsWith('en'));
     if (preferred) currentUtterance.voice = preferred;
+
+    // Slightly slower, deliberate pace — suits a dry British delivery
+    currentUtterance.rate = 0.93;
+    currentUtterance.pitch = 1.0;
 
     currentUtterance.onstart = () => setSpeakingState(true);
     currentUtterance.onend = () => setSpeakingState(false);
