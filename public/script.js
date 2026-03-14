@@ -168,6 +168,11 @@ async function sendToGemini(text) {
         const data = await response.json();
         visualizer.classList.remove('thinking');
 
+        if (data.error) {
+            outputDiv.innerHTML = `<div style="color:#e05c5c;">⚠️ ${data.error}</div>`;
+            return;
+        }
+
         if (data.reply) {
             // Update conversation history with this exchange
             conversationHistory.push({ role: 'user', parts: [{ text: text }] });
