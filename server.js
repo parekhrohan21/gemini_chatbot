@@ -15,9 +15,9 @@ if (!apiKey) {
 }
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Using Gemini 3 Flash Preview - latest available model
+// Using Gemini 2.0 Flash - latest stable model
 const model = genAI.getGenerativeModel({
-    model: "gemini-3-flash-preview",
+    model: "gemini-2.0-flash",
 });
 
 app.post('/chat', async (req, res) => {
