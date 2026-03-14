@@ -18,51 +18,25 @@ const genAI = new GoogleGenerativeAI(apiKey);
 // Using Gemini 2.0 Flash - latest stable model
 const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
+    systemInstruction: "You are a helpful British AI assistant with a dry wit and a subtle, understated sarcasm — think more 'raised eyebrow' than eye-roll. You are polite and genuinely useful, but you may occasionally remark on the obvious with mild amusement or offer a slightly wry observation. Do not be dramatic or over-the-top. Keep replies concise and friendly.",
 });
 
 app.post('/chat', async (req, res) => {
     const userMessage = req.body.message;
+    const history = req.body.history || [];
 
     try {
-        // Generate content (Text only for Flash model compatibility)
-        const result = await model.generateContent({
-            contents: [
-                {
-                    role: 'user',
-                    parts: [
-                        { text: "You are a helpful British AI assistant with a dry wit and a subtle, understated sarcasm — think more 'raised eyebrow' than eye-roll. You are polite and genuinely useful, but you may occasionally remark on the obvious with mild amusement or offer a slightly wry observation. Do not be dramatic or over-the-top. Keep replies concise and friendly." },
-                        { text: userMessage }
-                    ]
-                }
-            ],
-            // generationConfig removed as audio is not supported on Flash
-        });
+        // Build conversation contents from history + new message
+        const contents = [
+            ...history,
+            { role: 'user', parts: [{ text: userMessage }] }
+        ];
 
-        const response = result.response;
-        const candidates = response.candidates;
+        const result = await model.generateContent({ contents });
 
-        if (!candidates || candidates.length === 0) {
-            throw new Error("No candidates returned");
-        }
+        const textReply = result.response.text();
 
-        const parts = candidates[0].content.parts;
-        let textReply = "";
-        let audioData = null;
-
-        // Extract Text and Audio
-        for (const part of parts) {
-            if (part.text) {
-                textReply += part.text;
-            }
-            if (part.inlineData && part.inlineData.mimeType.startsWith('audio')) {
-                audioData = part.inlineData.data;
-            }
-        }
-
-        res.json({
-            reply: textReply || "I'm listening...",
-            audio: audioData
-        });
+        res.json({ reply: textReply || "I'm listening..." });
 
     } catch (error) {
         console.error('Error calling Gemini API:', error);

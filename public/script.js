@@ -8,6 +8,7 @@ let isListening = false;
 let isMuted = false;
 let audioContext, analyser, dataArray;
 let currentUtterance = null;
+let conversationHistory = [];
 
 // ──────────────────────────────────────────
 // Visualizer
@@ -161,21 +162,19 @@ async function sendToGemini(text) {
         const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text })
+            body: JSON.stringify({ message: text, history: conversationHistory })
         });
 
         const data = await response.json();
         visualizer.classList.remove('thinking');
 
         if (data.reply) {
-            outputDiv.innerHTML = `<div><b>Gemini:</b> ${data.reply}</div>`;
-            // Speak the reply using Web Speech API
-            speakText(data.reply);
-        }
+            // Update conversation history with this exchange
+            conversationHistory.push({ role: 'user', parts: [{ text: text }] });
+            conversationHistory.push({ role: 'model', parts: [{ text: data.reply }] });
 
-        // Fallback: play server-side audio if it ever comes back
-        if (data.audio) {
-            playAudio(data.audio);
+            outputDiv.innerHTML = `<div><b>Gemini:</b> ${data.reply}</div>`;
+            speakText(data.reply);
         }
 
     } catch (error) {
@@ -183,14 +182,6 @@ async function sendToGemini(text) {
         outputDiv.textContent = "Error communicating with Gemini.";
         visualizer.classList.remove('thinking');
     }
-}
-
-function playAudio(base64Audio) {
-    const audioStr = "data:audio/wav;base64," + base64Audio;
-    const audio = new Audio(audioStr);
-    setSpeakingState(true);
-    audio.onended = () => setSpeakingState(false);
-    audio.play().catch(e => console.error("Playback error:", e));
 }
 
 // ──────────────────────────────────────────
