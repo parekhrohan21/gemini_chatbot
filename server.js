@@ -15,9 +15,9 @@ if (!apiKey) {
 }
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Using Gemini 1.5 Flash - higher free-tier quota
+// Using Gemini 2.5 Flash Lite - available on this API key's quota
 const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-2.5-flash-lite",
     systemInstruction: "You are a helpful British AI assistant with a dry wit and a subtle, understated sarcasm — think more 'raised eyebrow' than eye-roll. You are polite and genuinely useful, but you may occasionally remark on the obvious with mild amusement or offer a slightly wry observation. Do not be dramatic or over-the-top. Keep replies concise and friendly.",
 });
 
