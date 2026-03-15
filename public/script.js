@@ -1,5 +1,7 @@
 const outputDiv = document.getElementById('output');
+const visualizerContainer = document.getElementById('visualizer-container');
 const visualizer = document.getElementById('visualizer');
+const orbStatus = document.getElementById('orb-status');
 const micButton = document.getElementById('mic-button');
 const muteButton = document.getElementById('mute-button');
 
@@ -21,23 +23,48 @@ function initVisualizer() {
     dataArray = new Uint8Array(bufferLength);
 }
 
+function setOrbState(state) {
+    // Remove all states from both elements
+    ['active', 'thinking', 'speaking'].forEach(s => {
+        visualizer.classList.remove(s);
+        visualizerContainer.classList.remove(`state-${s}`);
+    });
+    visualizerContainer.classList.remove('state-listening');
+
+    if (!state) {
+        orbStatus.textContent = '';
+        return;
+    }
+
+    if (state === 'listening') {
+        visualizer.classList.add('active');
+        visualizerContainer.classList.add('state-listening');
+        orbStatus.textContent = 'Listening...';
+    } else if (state === 'thinking') {
+        visualizer.classList.add('thinking');
+        visualizerContainer.classList.add('state-thinking');
+        orbStatus.textContent = 'Processing...';
+    } else if (state === 'speaking') {
+        visualizer.classList.add('speaking');
+        visualizerContainer.classList.add('state-speaking');
+        orbStatus.textContent = 'Speaking...';
+    }
+}
+
 function updateVisualizer(isActive) {
     if (!visualizer) return;
     if (isActive) {
-        visualizer.classList.add('active');
-        visualizer.classList.remove('speaking');
+        setOrbState('listening');
     } else {
-        visualizer.classList.remove('active');
-        visualizer.classList.remove('speaking');
+        setOrbState(null);
     }
 }
 
 function setSpeakingState(speaking) {
     if (speaking) {
-        visualizer.classList.add('speaking');
-        visualizer.classList.remove('active');
+        setOrbState('speaking');
     } else {
-        visualizer.classList.remove('speaking');
+        setOrbState(null);
     }
 }
 
@@ -142,8 +169,7 @@ function setupRecognition() {
     recognition.onresult = async (event) => {
         const transcript = event.results[0][0].transcript;
         outputDiv.textContent = `You: ${transcript}`;
-        updateVisualizer(false);
-        visualizer.classList.add('thinking');
+        setOrbState('thinking');
         await sendToGemini(transcript);
     };
 
@@ -166,7 +192,7 @@ async function sendToGemini(text) {
         });
 
         const data = await response.json();
-        visualizer.classList.remove('thinking');
+        setOrbState(null);
 
         if (data.error) {
             outputDiv.innerHTML = `<div style="color:#e05c5c;">⚠️ ${data.error}</div>`;
@@ -185,7 +211,7 @@ async function sendToGemini(text) {
     } catch (error) {
         console.error('Error:', error);
         outputDiv.textContent = "Error communicating with Gemini.";
-        visualizer.classList.remove('thinking');
+        setOrbState(null);
     }
 }
 
