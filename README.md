@@ -1,41 +1,97 @@
-# Voice-Enabled Gemini Agent
+# 🤖 Gemini Chatbot
 
-This project transforms a simple chatbot into a voice-enabled Agent using Gemini 2.0 Flash features.
+A voice-enabled AI chatbot powered by **Google Gemini 2.5 Flash Lite**, featuring a web interface with a visualiser orb and a Python CLI speaking assistant.
+
+---
 
 ## Features
-### 1. Backend (`server.js`)
-- Integrated `@google/generative-ai` SDK.
-- Configured `gemini-2.0-flash-exp` model.
-- Enabled `response_modalities: ["TEXT", "AUDIO"]` to receive native audio from Gemini.
-- Backend now returns both text and a base64 audio string.
 
-### 2. Frontend (`public/`)
-- **Agent UI**: Replaced the simple form with a "Visualiser Orb" that pulses when listening and speaking.
-- **Voice Logic**: Implemented `SpeechRecognition` to capture user voice, and `Audio` API to play Gemini's response.
-- **Dark Mode**: Applied a premium dark aesthetics with animations.
+- **Web UI** — Chat via browser with a pulsing visualiser orb that reacts to conversation states (Idle → Listening → Thinking → Speaking)
+- **Python CLI** — Terminal chatbot with native text-to-speech via `pyttsx3`
+- **Gemini 2.5 Flash Lite** — Fast, efficient responses through the Gemini API
+- **Secure API key handling** — Key loaded from `.env`, never hardcoded
 
-## How to Run
-1.  **Install Dependencies**:
-    ```bash
-    npm install
-    ```
-2.  **Start the Server**:
-    ```bash
-    npm start
-    ```
-3.  **Open Browser**: Go to `http://localhost:3000`.
-4.  **Permissions**: Allow Microphone access when prompted.
-5.  **Interact**:
-    - Click the **Microphone Icon**.
-    - Speak to the agent (e.g., "Tell me a joke").
-    - **Watch**: The orb will change state (Listening -> Thinking -> Speaking).
-    - **Listen**: You will hear Gemini's voice response.
+---
 
-## Visualization Of States
-- **Idle**: Pulsing Blue Orb.
-- **Listening**: Red Glow, Active Pulse.
-- **Thinking**: Fast White Spin.
-- **Speaking**: Ripple Effect.
+## Getting Started
 
-> [!NOTE]
-> Ensure you have your `GEMINI_API_KEY` set correctly in the environment or `server.js` (currently hardcoded for demo).
+### 1. Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18+)
+- [Python](https://www.python.org/) (3.8+)
+- A **Gemini API key** (see below)
+
+### 2. Get a Gemini API Key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click **"Create API Key"**
+4. Copy the key — you'll need it in the next step
+
+### 3. Clone the Repo
+
+```bash
+git clone https://github.com/parekhrohan21/gemini_chatbot.git
+cd gemini_chatbot
+```
+
+### 4. Set Up Your API Key
+
+Create a `.env` file in the root of the project:
+
+```bash
+cp .env.example .env
+```
+
+Then open `.env` and replace the placeholder with your actual key:
+
+```
+GEMINI_API_KEY=your_api_key_here
+```
+
+> [!IMPORTANT]
+> Never share or commit your `.env` file. It is already listed in `.gitignore`.
+
+---
+
+## Running the Web Interface
+
+```bash
+npm install
+npm start
+```
+
+Open your browser at `http://localhost:3000`.
+
+**Orb States:**
+| State | Appearance |
+|---|---|
+| Idle | Pulsing blue orb |
+| Listening | Red glow, active pulse |
+| Thinking | Fast white spin |
+| Speaking | Ripple effect |
+
+---
+
+## Running the Python CLI Chatbot
+
+```bash
+pip install google-generativeai python-dotenv pyttsx3
+python main.py
+```
+
+Type your message and press Enter. Say `quit`, `exit`, or `bye` to end the session.
+
+---
+
+## Project Structure
+
+```
+gemini_chatbot/
+├── public/          # Frontend (HTML, JS, CSS)
+├── server.js        # Express backend — handles Gemini API calls
+├── main.py          # Python CLI chatbot with text-to-speech
+├── .env.example     # Template for environment variables
+├── .env             # Your local API key (gitignored)
+└── package.json
+```
