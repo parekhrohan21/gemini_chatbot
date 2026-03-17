@@ -71,7 +71,43 @@ function setSpeakingState(speaking) {
 // ──────────────────────────────────────────
 // Text-to-Speech (Web Speech API)
 // ──────────────────────────────────────────
-function speakText(text) {
+
+// Voices load asynchronously in Chrome — wait until they're ready
+function getVoicesReady() {
+    return new Promise(resolve => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+            resolve(voices);
+        } else {
+            window.speechSynthesis.onvoiceschanged = () => {
+                resolve(window.speechSynthesis.getVoices());
+            };
+        }
+    });
+}
+
+function pickBritishFemaleVoice(voices) {
+    // Priority list — most realistic first
+    const priority = [
+        v => v.name === 'Google UK English Female',
+        v => v.name === 'Microsoft Libby Online (Natural) - English (United Kingdom)',
+        v => v.name === 'Microsoft Mia Online (Natural) - English (United Kingdom)',
+        v => v.name === 'Microsoft Hazel - English (Great Britain)',
+        v => v.name.toLowerCase().includes('libby') && v.lang.startsWith('en-GB'),
+        v => v.name.toLowerCase().includes('mia') && v.lang.startsWith('en-GB'),
+        v => v.name.toLowerCase().includes('female') && v.lang === 'en-GB',
+        v => v.lang === 'en-GB',
+        v => v.lang.startsWith('en-GB'),
+        v => v.lang.startsWith('en'),
+    ];
+    for (const test of priority) {
+        const match = voices.find(test);
+        if (match) return match;
+    }
+    return null;
+}
+
+async function speakText(text) {
     if (!window.speechSynthesis) {
         console.warn('SpeechSynthesis not supported in this browser.');
         return;
@@ -91,34 +127,23 @@ function speakText(text) {
         .replace(/\n/g, ' ')               // newlines
         .trim();
 
+    // Wait for voices to be ready (fixes Chrome async loading)
+    const voices = await getVoicesReady();
+    const voice = pickBritishFemaleVoice(voices);
+    if (voice) console.log('🔊 Using voice:', voice.name, voice.lang);
+
     currentUtterance = new SpeechSynthesisUtterance(cleanText);
     currentUtterance.lang = 'en-GB';
     currentUtterance.volume = 1.0;
-
-    // Prefer British English female voices
-    const voices = window.speechSynthesis.getVoices();
-    const preferred =
-        voices.find(v => v.name === 'Google UK English Female') ||
-        voices.find(v => v.name.toLowerCase().includes('female') && v.lang === 'en-GB') ||
-        voices.find(v => v.lang === 'en-GB') ||
-        voices.find(v => v.lang.startsWith('en-GB')) ||
-        voices.find(v => v.lang.startsWith('en'));
-    if (preferred) currentUtterance.voice = preferred;
-
-    // Slightly slower, deliberate pace — suits a dry British delivery
-    currentUtterance.rate = 0.93;
+    currentUtterance.rate = 0.93;   // deliberate, natural British pace
     currentUtterance.pitch = 1.0;
+    if (voice) currentUtterance.voice = voice;
 
     currentUtterance.onstart = () => setSpeakingState(true);
     currentUtterance.onend = () => setSpeakingState(false);
     currentUtterance.onerror = () => setSpeakingState(false);
 
     window.speechSynthesis.speak(currentUtterance);
-}
-
-// Load voices (Chrome loads them async)
-if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
-    window.speechSynthesis.onvoiceschanged = () => { /* voices loaded */ };
 }
 
 // ──────────────────────────────────────────
