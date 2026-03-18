@@ -4,6 +4,8 @@ const visualizer = document.getElementById('visualizer');
 const orbStatus = document.getElementById('orb-status');
 const micButton = document.getElementById('mic-button');
 const muteButton = document.getElementById('mute-button');
+const textInput = document.getElementById('text-input');
+const sendButton = document.getElementById('send-button');
 
 let recognition;
 let isListening = false;
@@ -252,6 +254,28 @@ micButton.addEventListener('click', () => {
     }
 });
 
+// ──────────────────────────────────────────
+// Text Input Submit
+// ──────────────────────────────────────────
+async function handleTextSubmit() {
+    const text = textInput.value.trim();
+    if (!text) return;
+
+    textInput.value = '';
+    outputDiv.textContent = `You: ${text}`;
+    // Stop any ongoing TTS/listening when user types
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    setSpeakingState(false);
+    setOrbState('thinking');
+    await sendToGemini(text);
+}
+
+sendButton.addEventListener('click', handleTextSubmit);
+
+textInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleTextSubmit();
+});
+
 // Initial setup
-outputDiv.textContent = "Click the microphone to start chatting.";
+outputDiv.textContent = "Click the microphone or type below to start chatting.";
 initVisualizer();
